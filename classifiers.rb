@@ -5,8 +5,21 @@ module Classifiers
   Hit = Struct.new :id, :score
     
   # classifiers
-
-  class KnnClassifier
+  
+  class Base
+    
+    def classify data
+      raise 'Abstract! Please implement!'
+      # return Array of Hits
+    end
+    
+    def train id, data
+      raise 'Abstract! Please implement!'
+    end
+    
+  end
+  
+  class KnnClassifier < Base
         
     def initialize extractor, measure, options = {}
       options = {
@@ -17,20 +30,16 @@ module Classifiers
       @extractor = extractor
       @measure = measure
       @samples = CappedContainer.new options[:limit] # TODO add to options
-      @cache = options[:cache]
       @semaphore = Mutex.new # synchronize access to @samples
     end
     
     # train the classifier
     def train id, data, sample_id = nil # sample_id is for caching purposes
-      extracted = if @cache && sample_id
-                    @cache.fetch(sample_id.to_s) { @extractor.call(data) }
-                  else
-                    @extractor.call(data)
-                  end
+      extracted = @extractor.call(data)
       synchronize do
         @samples << Sample.new(id, extracted)
       end
+      true
     end
 
     def classify data, options = {}
@@ -98,6 +107,7 @@ module Classifiers
       synchronize do
         @tree << Sample.new(id, @extractor.call(data), sample_id.to_s)
       end
+      true
     end
     
     def classify data, options = {}
@@ -117,8 +127,8 @@ module Classifiers
     @@classifier_blueprints[key] = proc &block
   end
   
-  def [] key, cache = nil
-    @@classifier_blueprints[key].call cache
+  def [] key
+    @@classifier_blueprints[key].call
   end
   
 

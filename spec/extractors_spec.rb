@@ -1,10 +1,10 @@
 require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
 require 'extractors'
 
-describe Detexify::Extractors::Strokes::BoundingBox do
+describe Extractors::Strokes::BoundingBox do
   
   before do
-    @ex = Detexify::Extractors::Strokes::BoundingBox.new
+    @ex = Extractors::Strokes::BoundingBox.new
   end
   
   it "should calculate the bounding box of one stroke" do
@@ -24,10 +24,10 @@ describe Detexify::Extractors::Strokes::BoundingBox do
     
 end
 
-describe Detexify::Extractors::Strokes::Features do
+describe Extractors::Strokes::Features do
   
   before do
-    @ex = Detexify::Extractors::Strokes::Features.new
+    @ex = Extractors::Strokes::Features.new
   end
   
   it "should calculate" do
@@ -37,10 +37,10 @@ describe Detexify::Extractors::Strokes::Features do
     
 end
 
-describe Detexify::Extractors::Strokes::PointDensity do
+describe Extractors::Strokes::PointDensity do
   
   before do
-    @ex = Detexify::Extractors::Strokes::PointDensity.new({'x' => (0..1), 'y' => (0..1) }, {'x' => (1..2), 'y' => (1..2) })
+    @ex = Extractors::Strokes::PointDensity.new({'x' => (0..1), 'y' => (0..1) }, {'x' => (1..2), 'y' => (1..2) })
   end
   
   it "should calculate the point density" do

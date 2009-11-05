@@ -1,5 +1,4 @@
 require 'spec/rake/spectask'
-require 'symbol_task'
 
 task :default => [:spec]
 

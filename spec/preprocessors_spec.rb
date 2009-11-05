@@ -1,7 +1,7 @@
 require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
 require 'preprocessors'
 
-describe Detexify::Preprocessors::Strokes::EquidistantPoints do
+describe Preprocessors::Strokes::EquidistantPoints do
   
   def distance p1, p2
     (p1-p2).r
@@ -9,7 +9,7 @@ describe Detexify::Preprocessors::Strokes::EquidistantPoints do
   
   before do
     @distance = 0.01
-    @pre = Detexify::Preprocessors::Strokes::EquidistantPoints.new :distance => @distance
+    @pre = Preprocessors::Strokes::EquidistantPoints.new :distance => @distance
     @strokes = [[Vector[1,1], Vector[-1,-3], Vector[-1,-1]]]
   end
   
@@ -58,16 +58,10 @@ describe Detexify::Preprocessors::Strokes::EquidistantPoints do
       
 end
 
-describe Detexify::Preprocessors::Strokes::ToImage do
-  
-  it "should create an image from the strokes"
-  
-end
-
-describe Detexify::Preprocessors::Strokes::EquidistantPoints do
+describe Preprocessors::Strokes::EquidistantPoints do
   
   before do
-    @pre = Detexify::Preprocessors::Strokes::SizeNormalizer.new
+    @pre = Preprocessors::Strokes::SizeNormalizer.new
     @strokes = [[Vector[1,1], Vector[-1,-3], Vector[-1,-1]]]
   end
   
@@ -93,16 +87,4 @@ describe Detexify::Preprocessors::Strokes::EquidistantPoints do
     end
   end
 
-end
-
-describe Detexify::Preprocessors::Pipe do
-
-  it "should pipe preprocessors together" do
-    Detexify::Preprocessors::Pipe.new(lambda { |i| i+1 }, lambda { |i| i+1 }).call(1).should == 3
-  end
-
-  it "should call in the right order" do
-    Detexify::Preprocessors::Pipe.new(lambda { |a| a.pop; a }, lambda { |a| a.push 2; a }).call([1]).should == [2]
-  end
-  
 end
