@@ -15,81 +15,41 @@ describe 'The Sinatra classifier' do
   include Rack::Test::Methods
 
   before do
-    @symbol = Latex::Symbol::List.first
-    @strokes = [[{'x'=>0, 'y'=>0}, {'x'=>1, 'y'=>1}]]
+    @id = 'someid'
+    @data = 'somedata'
     CLASSIFIER.stub!(:train)
   end
 
-  it "classifies a wellformed request" do
-    CLASSIFIER.should_receive(:classify).and_return [Hit.new(@symbol.id, 1)]
-    post '/classify', :strokes => JSON(@strokes)
-    last_response.should be_ok
-    r = JSON last_response.body
-    r.should be_a(Array)
-    # %w(best all).each do |key|
-    #   r.should have_key(key)
-    # end
-  end
-  
-  it "trains a wellformed request" do
+  it "trains a wellformed request (POST /train/:id request.body~>data)" do
     CLASSIFIER.should_receive(:train)
-    post '/train', {:id => @symbol.id, :strokes => JSON(@strokes)}
+    
+    post "/train/#{@id}", @data
     last_response.should be_ok
   end
-  
-  it "won't train illegal ids" do
-    CLASSIFIER.should_not_receive(:train)
-    post '/train', {:id => 'bullshit', :strokes => JSON(@strokes)}
-    last_response.status.should == 403
-  end
 
-  it "won't train without strokes" do
-    CLASSIFIER.should_not_receive(:train)
-    post '/train', {:id => @symbol.id}
-    last_response.status.should == 403
-  end
-
-  it "won't train malformed strokes" do
-    CLASSIFIER.should_not_receive(:train)
-    post '/train', {:id => @symbol.id, :strokes => 'malformed'}
-    last_response.status.should == 403
-  end
-  
-  it "lists symbols as json" do
-    get '/symbols'
+  it "classifies a wellformed request (POST /classify request.body~>data)" do
+    CLASSIFIER.should_receive(:classify).and_return [Hit.new(@id.to_sym, 1)]
+    
+    post '/classify', @data
     last_response.should be_ok
-    # verify structure of response
-    # [{id:..., command:..., textmode:..., ...}, ...]
-    r = JSON(last_response.body)
-    r.should be_a(Array)
-    r.each do |element|
-      element.should be_a(Hash)
-      %w(id command mathmode textmode samples).each do |key|
-        element.should have_key key        
-      end
+    
+    r = JSON last_response.body
+    r.should be_an(Array)
+    r.each do |h|
+      h.should be_a(Hash)
+      h.should have_key("id")
+      h.should have_key("score")
+      h["id"].should be_a(String)
+      h["score"].should be_a(Numeric)
     end
   end
   
-  it "should limit the results if requested" # do
-   #    res = @classifier.classify(@data, :limit => 1)
-   #    res.should have(1).elements    
-   #  end
-
-  it "should skip results if requested" # do
-   #    res = @classifier.classify(@data)
-   #    skip = @classifier.classify(@data, :skip => 1)
-   #    skip.should === res[1..-1]
-   #  end
-
-  it "should limit the results if also skipped" # do
-   #    res = @classifier.classify(@data, :limit => 1, :skip => 1)
-   #    res.should have(1).elements
-   #  end
-
-  it "should skip results if also limited" # do
-   #    res = @classifier.classify(@data, :limit => 2)
-   #    skip = @classifier.classify(@data, :skip => 1, :limit => 1)
-   #    skip.should === res[1, 1]    
-   #  end
+  # it "won't train without a body" do
+  #   CLASSIFIER.should_not_receive(:train)
+  #   post "/train/#{@id}"
+  #   last_response.status.should == 422
+  # end
+  # 
+  # it "won't classify without a request body"
   
 end

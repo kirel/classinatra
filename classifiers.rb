@@ -1,4 +1,3 @@
-require 'sample'
 require 'decision_tree' # TODO autoload
 
 module Classifiers
