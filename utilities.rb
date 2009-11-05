@@ -1,3 +1,4 @@
+# class needs a call method
 module Lambdalike
   
   # (f * g)(x) = f(g(x))
@@ -10,3 +11,5 @@ module Lambdalike
   end
   
 end
+
+Proc.send :include, Lambdalike
