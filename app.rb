@@ -3,7 +3,7 @@ require 'sinatra'
 require 'matrix'
 require 'my_classifiers'
 
-CLASSIFIER = Classifiers[:default]
+CLASSIFIER = Classifiers[ENV['classifier'] && ENV['classifier'].to_sym || :default]
 #CLASSIFIER = Classifiers[:dcelastic]
 
 post '/train/:id' do
