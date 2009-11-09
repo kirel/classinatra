@@ -104,8 +104,9 @@ module Classifiers
     end
     
     def train id, data, sample_id = nil
+      sample = Sample.new(id, @extractor.call(data), sample_id.to_s)
       synchronize do
-        @tree << Sample.new(id, @extractor.call(data), sample_id.to_s)
+        @tree << sample
       end
       true
     end
