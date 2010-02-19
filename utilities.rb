@@ -13,3 +13,9 @@ module Lambdalike
 end
 
 Proc.send :include, Lambdalike
+
+class Array
+  def rest
+    self[1,self.size-1]
+  end
+end

@@ -88,3 +88,85 @@ describe Preprocessors::Strokes::EquidistantPoints do
   end
 
 end
+
+describe Preprocessors::Strokes::Concatenation do
+  
+  before do
+    @pre = Preprocessors::Strokes::Concatenation.new
+  end
+  
+  it "should concatenate all strokes into one" do
+    bef = [[Vector[1,1]], [Vector[-1,-3]], [Vector[-1,-1]]]
+    aft = [[Vector[1,1], Vector[-1,-3], Vector[-1,-1]]]
+    
+    @pre.call(bef).should == aft
+  end
+
+end
+
+describe Preprocessors::Strokes::DominantPoints do
+  
+  before do
+    @pre = Preprocessors::Strokes::DominantPoints.new
+  end
+  
+  it "should remove non dominant points" do
+    bef = [[Vector[1,1], Vector[2,2], Vector[3,3], Vector[4,4]]]
+    aft = [[Vector[1,1], Vector[4,4]]]
+    
+    @pre.call(bef).should == aft
+  end
+
+  it "should preserve dominant points" do
+    bef = [[Vector[1,1], Vector[0,0], Vector[3,3], Vector[0,0]]]
+    aft = [[Vector[1,1], Vector[0,0], Vector[3,3], Vector[0,0]]]
+    
+    @pre.call(bef).should == aft
+  end
+
+  it "should remove duplicate points" do
+    bef = [[Vector[1,1], Vector[1,1], Vector[1,1], Vector[0,0], Vector[0,0], Vector[0,0]]]
+    aft = [[Vector[1,1], Vector[0,0]]]
+    
+    @pre.call(bef).should == aft
+  end
+
+  it "should preserve single points" do
+    bef = [[Vector[1,1]]]
+    aft = [[Vector[1,1]]]
+    @pre.call(bef).should == aft    
+  end
+
+  it "should preserve pairs of points only if they are different" do
+    bef = [[Vector[0,0], Vector[1,1]]]
+    aft = [[Vector[0,0], Vector[1,1]]]
+    @pre.call(bef).should == aft    
+
+    bef = [[Vector[0,0], Vector[0,0]]]
+    aft = [[Vector[0,0]]]
+    @pre.call(bef).should == aft    
+  end
+
+end
+
+describe Preprocessors::Strokes::RemoveDuplicatePoints do
+  
+  before do
+    @pre = Preprocessors::Strokes::DominantPoints.new
+  end
+  
+  it "should preserve non duplicate points" do
+    bef = [[Vector[1,1], Vector[0,0], Vector[3,3], Vector[0,0]]]
+    aft = [[Vector[1,1], Vector[0,0], Vector[3,3], Vector[0,0]]]
+    
+    @pre.call(bef).should == aft
+  end
+
+  it "should remove duplicate points" do
+    bef = [[Vector[1,1], Vector[1,1], Vector[1,1], Vector[0,0], Vector[0,0], Vector[0,0]]]
+    aft = [[Vector[1,1], Vector[0,0]]]
+    
+    @pre.call(bef).should == aft
+  end
+
+end

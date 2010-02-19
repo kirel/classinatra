@@ -51,6 +51,7 @@ module MyMath
   end
 
   def orientation v
+    raise ArgumentError, "A null vector is not oriented. Sorry." if v.r == 0
     v = v*(1.0/v.r) # normalize
     x, y = v.to_a
     cos = Math::acos(x)*8.0/Math::PI
@@ -72,10 +73,7 @@ module MyMath
       :west
     when cos >= 5 && cos < 7 && sin >= 1 && sin < 3
       :northwest
-    else
-      :none # v.r == 0 => x,y == NaN
-    end
-    
+    end # no else necessary since all vectors different from null are oriented
   end
 
 end

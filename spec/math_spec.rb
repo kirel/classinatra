@@ -60,8 +60,7 @@ describe MyMath do
       :west => [-1,-0.5],
       :west => [-1,0],
       :northwest => [-1,0.5],
-      :northwest => [-1,1],
-      :none => [0.0,0.0]
+      :northwest => [-1,1]
     }.each do |d, v|
       orientation(Vector.elements(v)).should == d      
     end
