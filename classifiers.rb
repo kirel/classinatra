@@ -24,18 +24,17 @@ module Classifiers
     
   end
   
+  # Distance based type 3 classifier
   class DistanceBasedClassifier < Base
         
     def initialize extractor, measure, options = {}
-      options = {
-        :k => 5,
+      @options = {
         :limit => 100
       }.update(options)
-      @k = options[:k] 
       @extractor = extractor
       @measure = measure
-      @samples = CappedContainer.new options[:limit] # TODO add to options
       @semaphore = Mutex.new # synchronize access to @samples
+      reset!
     end
     
     # train the classifier
@@ -49,41 +48,19 @@ module Classifiers
 
     def classify data, options = {}
       unknown = @extractor.call(data)
-      # use nearest neighbour classification
       # sort by distance and find minimal distance for each class
-      minimal_distance_hash = {}
-      sorted = synchronize do
-        # puts @samples.size
-        # i = 0
-        @samples.sort_by do |sample|
-          # puts "**** Vergleiche"
+      minimal_distance_hash = synchronize do
+        @samples.inject({}) do |minhash, sample|
           d = @measure.call(unknown, sample.data)
-          minimal_distance_hash[sample.id] = d if (!minimal_distance_hash[sample.id]) || (minimal_distance_hash[sample.id] > d)
-          # puts "Abstand #{d}"
-          # if d.nan?
-          #   puts "-Unbekannt- #{unknown.inspect}"
-          #   puts "-Muster- #{sample.inspect}"
-          # end
-          # puts (i += 1)
-          d
+          minhash[sample.id] && minhash[sample.id] < d ? minhash : minhash.update(sample.id => d)
         end
       end
-      neighbours = Hash.new { |h,v| h[v] = 0 } # counting classes of neighbours
-      # @k is number of best matches we want in the list
-      while (!sorted.empty?) && (neighbours.size < @k)
-        sample = sorted.shift # next nearest sample to f
-        neighbours[sample.id] += 1 # counting neighbours of that class
-      end
-      max_nearest_neighbours_distance = neighbours.map { |id, _| minimal_distance_hash[id] }.max
-      # TODO explain
-      computed_neighbour_distance = {}
-      neighbours.each { |id, num| computed_neighbour_distance[id] = max_nearest_neighbours_distance.to_f/num }
-      minimal_distance_hash.update(computed_neighbour_distance)
-      # FIXME this feels slow
       ret = minimal_distance_hash.map { |id, dist| Hit.new id, dist }.sort_by{ |h| h.score }
-      # limit and skip shuld be done in the app
-      # ret = ret[options[:skip] || 0, options[:limit] || ret.size] if [:limit, :skip].any? { |k| options[k] }
       return ret
+    end
+    
+    def reset!
+      @samples = CappedContainer.new @options[:limit]
     end
     
     protected
