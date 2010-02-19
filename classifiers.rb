@@ -1,4 +1,4 @@
-require 'decision_tree' # TODO autoload
+require 'sample'
 
 module Classifiers
 
@@ -88,37 +88,6 @@ module Classifiers
     end
 
   end # KnnClassifier
-  
-  class DCPruningKnnClassifier < KnnClassifier
-        
-    def initialize extractor, measure, deciders, options = {}
-      options = {
-        :k => 5,
-        :limit => 100
-      }.update(options)
-      @k = options[:k] 
-      @extractor = extractor
-      @measure = measure
-      @tree = DecisionTree.new deciders, options[:limit]
-      @semaphore = Mutex.new
-    end
-    
-    def train id, data, sample_id = nil
-      sample = Sample.new(id, @extractor.call(data), sample_id.to_s)
-      synchronize do
-        @tree << sample
-      end
-      true
-    end
-    
-    def classify data, options = {}
-      synchronize do
-        @samples = @tree.call data
-      end
-      super data, options
-    end
-    
-  end
   
   @@classifier_blueprints = {}
   

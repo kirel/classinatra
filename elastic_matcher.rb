@@ -21,6 +21,10 @@ end
 
 class ElasticMatcher
   
+  def initialize measure
+    @measure = measure
+  end
+  
   def call first, second
     reset first.size
     D first, second
@@ -34,7 +38,7 @@ class ElasticMatcher
   end
 
   def d point, qoint # two vectors
-    @distance_memory[point][qoint] ||= (point - qoint).r
+    @distance_memory[point][qoint] ||= @measure.call(point, qoint)
   end
 
   def D r,s
@@ -55,13 +59,14 @@ class ElasticMatcher
   end  
 end
 
-MultiElasticMatcher = lambda do |first, second|
-  @matcher = ElasticMatcher.new
-  small, long = first.size < second.size ? [first, second] : [second, first]
-  res = (0...small.size).sum { |i| @matcher.call(small[i], long[i]) }
-  # if long is longer match all remaining against last stroke of small
-  res += (small.size...long.size).sum { |i| @matcher.call(small.last, long[i]) } || 0
-end
+# TODO make a MultielasticMatcher that actually makes sense
+# MultiElasticMatcher = lambda do |first, second|
+#   @matcher = ElasticMatcher.new
+#   small, long = first.size < second.size ? [first, second] : [second, first]
+#   res = (0...small.size).sum { |i| @matcher.call(small[i], long[i]) }
+#   # if long is longer match all remaining against last stroke of small
+#   res += (small.size...long.size).sum { |i| @matcher.call(small.last, long[i]) } || 0
+# end
 
 if __FILE__ == $0
   require 'test/unit'
@@ -69,7 +74,7 @@ if __FILE__ == $0
   class TestElasticMatcher < Test::Unit::TestCase
     
     def setup
-      @matcher = ElasticMatcher.new
+      @matcher = ElasticMatcher.new lambda { |q,p| (q-p).r }
     end
     
     def test_match_self_exactly
@@ -81,6 +86,9 @@ if __FILE__ == $0
       s,t = [[Vector[0,0]],[Vector[0,1]]]
       assert_not_equal(@matcher.call(s,t), 0)
     end
+    
+    # def test_sanity
+    # end
   end
   
 end

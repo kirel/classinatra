@@ -8,7 +8,19 @@ classifier :default do
   KnnClassifier.new(Extractors::Strokes::Features.new * Preprocessors::JSONtoStrokes.new, lambda { |v,w| (v-w).r })
 end
 
-classifier :largek do
+classifier :k1 do
+  KnnClassifier.new(Extractors::Strokes::Features.new * Preprocessors::JSONtoStrokes.new, lambda { |v,w| (v-w).r }, :k => 1)
+end
+
+classifier :k2 do
+  KnnClassifier.new(Extractors::Strokes::Features.new * Preprocessors::JSONtoStrokes.new, lambda { |v,w| (v-w).r }, :k => 2)
+end
+
+classifier :k10 do
+  KnnClassifier.new(Extractors::Strokes::Features.new * Preprocessors::JSONtoStrokes.new, lambda { |v,w| (v-w).r }, :k => 10)
+end
+
+classifier :k25 do
   KnnClassifier.new(Extractors::Strokes::Features.new * Preprocessors::JSONtoStrokes.new, lambda { |v,w| (v-w).r }, :k => 25)
 end
 
@@ -16,25 +28,16 @@ classifier :ten do
   KnnClassifier.new(Extractors::Strokes::Features.new * Preprocessors::JSONtoStrokes.new, lambda { |v,w| (v-w).r }, :k => 10, :limit => 10)
 end
 
-classifier :tenelastic do
+classifier :elastic do
   Classifiers::KnnClassifier.new(
-    Preprocessors::Strokes::EquidistantPoints.new(:distance => 0.3) *
+    lambda { |strokes| strokes.first } *
+    Preprocessors::Strokes::Concatenation.new *
+    Preprocessors::Strokes::DominantPoints.new *
+    Preprocessors::Strokes::EquidistantPoints.new(:points => 30) *
     Preprocessors::Strokes::SizeNormalizer.new *
     Preprocessors::JSONtoStrokes.new,
-    MultiElasticMatcher, # measure
-    :k => 6, # to bubble down impostors
-    :limit => 10
-  )
-end
-
-classifier :dcelastic do
-  Classifiers::DCPruningKnnClassifier.new(
-    Preprocessors::Strokes::EquidistantPoints.new(:distance => 0.3) *
-    Preprocessors::Strokes::SizeNormalizer.new *
-    Preprocessors::JSONtoStrokes.new,
-    MultiElasticMatcher,
-    [lambda { |i| i.size }, Extractors::Strokes::AspectRatio.new(4)],
-    :k => 6, # to bubble down impostors
-    :limit => 10
+    ElasticMatcher.new(lambda { |v,w| (v-w).r }), # measure
+    :k => 5,
+    :limit => 50
   )
 end
