@@ -1,4 +1,6 @@
+require 'utilities'
 require 'sample'
+require 'thread'
 
 module Classifiers
 
@@ -8,6 +10,7 @@ module Classifiers
   
   class Base
     
+    # should return an Array of Hits
     def classify data
       raise 'Abstract! Please implement!'
       # return Array of Hits
@@ -71,6 +74,33 @@ module Classifiers
 
   end # DistanceBasedClassifier
   
+  class CombinedClassifier
+    
+    def initialize combination_rule, *classifiers # combination rule needs to be a binary function
+      @combination_rule = combination_rule
+      @classifiers = classifiers
+    end
+    
+    def train id, data
+      @classifiers.each { |c| c.train id, data }
+    end
+    
+    def classify data
+      combine(@classifiers.map { |c| c.classify data })
+    end
+    
+    def reset!
+      @classifiers.each { |c| c.train id, data }
+    end
+    
+    protected
+    
+    def combine hitlists
+      hithashes = hitlists.map { |hitlist| hitlist.inject({}) { |h, hit| h.update hit.id => hit.score } }
+      {}.update_with(*hithashes, &@combination_rule).map { |id, score| Hit.new id, score }.sort_by{ |h| h.score }
+    end
+  end
+  
   @@classifier_blueprints = {}
   
   module_function
@@ -83,5 +113,11 @@ module Classifiers
     @@classifier_blueprints[key].call
   end
   
+  def each
+    @@classifier_blueprints.inject({}) do |h, kv|
+      k, v = kv
+      h.update k => v.call
+    end
+  end
 
 end

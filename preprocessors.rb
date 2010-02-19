@@ -2,6 +2,7 @@ require 'matrix'
 require 'math'
 require 'extractors'
 require 'utilities'
+require 'json'
 
 module Preprocessors
 
