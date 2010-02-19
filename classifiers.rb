@@ -17,9 +17,14 @@ module Classifiers
       raise 'Abstract! Please implement!'
     end
     
+    # destroys training data - use with caution
+    def reset!
+      raise 'Abstract! Please implement!'
+    end
+    
   end
   
-  class KnnClassifier < Base
+  class DistanceBasedClassifier < Base
         
     def initialize extractor, measure, options = {}
       options = {
@@ -87,7 +92,7 @@ module Classifiers
       @semaphore.synchronize &block
     end
 
-  end # KnnClassifier
+  end # DistanceBasedClassifier
   
   @@classifier_blueprints = {}
   

@@ -3,14 +3,14 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'spec_helper'))
 require 'sample'
 require 'classifiers'
 
-describe Classifiers::KnnClassifier do
+describe Classifiers::DistanceBasedClassifier do
 
   before do
     @data = 1
     @sample = Sample.new(:"1", 1)
     @extractor = lambda { |i| i } # identity
     @measure = lambda { |i,j| (i - j).abs }
-    @classifier = Classifiers::KnnClassifier.new @extractor, @measure
+    @classifier = Classifiers::DistanceBasedClassifier.new @extractor, @measure
   end
     
   it "should train a sample" do
