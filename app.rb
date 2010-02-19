@@ -3,7 +3,13 @@ require 'sinatra'
 require 'matrix'
 require 'my_classifiers'
 
-CLASSIFIER = Classifiers[ENV['classifier'] && ENV['classifier'].to_sym || :default]
+# require 'rack/profile'
+# use Rack::Profile, :html => 'tmp/profile.html'
+
+
+classifier = ENV['CLASSIFIER'] || 'default'
+CLASSIFIER = Classifiers[classifier.to_sym]
+puts 'Running on ' + classifier
 #CLASSIFIER = Classifiers[:dcelastic]
 
 counts = Hash.new { |h,k| h[k] = 0 }
