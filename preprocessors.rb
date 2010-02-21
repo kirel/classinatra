@@ -41,6 +41,14 @@ module Preprocessors
         end
       end
     end
+    
+    # only use up to ten strokes and remove duplicate points
+    class Sanitize
+      include Lambdalike
+      def call strokes
+        strokes = RemoveDuplicatePoints.new.call(strokes[0,10])
+      end
+    end
 
     class EquidistantPoints
       

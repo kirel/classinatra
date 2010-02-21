@@ -10,7 +10,7 @@ describe "my classifiers" do
   it "default works" do
     @cla = Classifiers[:default]
     @cla.train :label, @sample
-    @cla.classify(@sample).should == [Hit.new :label, 0.0]
+    @cla.classify(@sample).should == [Hit.new(:label, 0.0)]
   end
   
 end

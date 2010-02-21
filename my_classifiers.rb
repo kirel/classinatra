@@ -5,7 +5,12 @@ require 'elastic_matcher'
 include Classifiers
 
 classifier :default do
-  DistanceBasedClassifier.new(Extractors::Strokes::Features.new * Preprocessors::JSONtoStrokes.new, lambda { |v,w| (v-w).r })
+  DistanceBasedClassifier.new(
+    Extractors::Strokes::Features.new *
+    Preprocessors::Strokes::Sanitize.new *
+    Preprocessors::JSONtoStrokes.new,
+    lambda { |v,w| (v-w).r }
+  )
 end
 
 classifier :elastic do
@@ -14,7 +19,7 @@ classifier :elastic do
     Preprocessors::Strokes::Concatenation.new *
     Preprocessors::Strokes::EquidistantPoints.new(:points => 30) *
     Preprocessors::Strokes::SizeNormalizer.new *
-    Preprocessors::Strokes::RemoveDuplicatePoints.new *
+    Preprocessors::Strokes::Sanitize.new *
     Preprocessors::JSONtoStrokes.new,
     ElasticMatcher.new(lambda { |v,w| (v-w).r }), # measure
     :limit => 50
