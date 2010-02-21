@@ -1,2 +1,2 @@
 gem "sinatra"
-gem "json"
+gem "json_pure"
